@@ -31,8 +31,8 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "9878:80"
-      - "443:443"
+      - "9873:80"
+      - "9443:443"
     deploy:
       resources:
         limits:
