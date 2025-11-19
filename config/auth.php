@@ -40,6 +40,20 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
+
+        'client' => [
+            'driver' => 'passport',
+            'provider' => 'clients',
+        ],
+
+        'parish' => [
+            'driver' => 'passport',
+            'provider' => 'parishs',
+        ],
     ],
 
     /*
@@ -63,6 +77,15 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+         'clients' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Client::class,
+        ],
+
+        'parishs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Parish::class,
         ],
 
         // 'users' => [
@@ -94,6 +117,19 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'clients' => [
+            'provider' => 'clients',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'parishs' => [
+            'provider' => 'parishs',
+            'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
         ],
