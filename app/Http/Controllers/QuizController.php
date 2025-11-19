@@ -239,20 +239,27 @@ class QuizController extends Controller
         return response()->json(['message' => 'Este quiz já pertence a um usuário.'], 400);
     }
     /**
+     * 
      * Get current ranking
      */
     public function getRanking()
     {
-        $ranking = QuizAttempt::with('user')
-            ->whereNotNull('user_id') // Only registered users
-            ->orderByDesc('score')
-            ->orderBy('created_at')
+        $ranking = QuizAttempt::select('quiz_attempts.*')
+            ->join('clients', function($join) {
+                $join->on('quiz_attempts.user_id', '=', 'clients.id')
+                     ->where('quiz_attempts.user_type', '=', \App\Models\Client::class);
+            })
+            ->orderByDesc('quiz_attempts.score')
+            ->orderByDesc('clients.referral_points')
+            ->orderBy('quiz_attempts.created_at')
+            ->with('user')
             ->take(10)
             ->get()
             ->map(function ($attempt) {
                 return [
                     'name' => $attempt->user ? $attempt->user->name : 'Anônimo',
                     'score' => $attempt->score,
+                    'referral_points' => $attempt->user ? $attempt->user->referral_points : 0,
                     'date' => $attempt->created_at->format('d/m/Y H:i'),
                     'is_current_user' => auth()->guard('client')->check() && auth()->guard('client')->id() === $attempt->user_id
                 ];

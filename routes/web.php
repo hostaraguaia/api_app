@@ -3,9 +3,15 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $ranking = \App\Models\QuizAttempt::with('user')
-        ->orderByDesc('score')
-        ->orderBy('created_at') // Desempate por quem fez primeiro
+    $ranking = \App\Models\QuizAttempt::select('quiz_attempts.*')
+        ->join('clients', function($join) {
+            $join->on('quiz_attempts.user_id', '=', 'clients.id')
+                 ->where('quiz_attempts.user_type', '=', \App\Models\Client::class);
+        })
+        ->orderByDesc('quiz_attempts.score')
+        ->orderByDesc('clients.referral_points')
+        ->orderBy('quiz_attempts.created_at')
+        ->with('user')
         ->take(3)
         ->get();
         
