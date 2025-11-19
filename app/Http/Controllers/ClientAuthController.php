@@ -159,9 +159,14 @@ class ClientAuthController extends Controller
                 ->where('user_type', Client::class)
                 ->count(),
             'average_percentage' => 0,
-            'best_score' => null,
-            'best_total' => null,
+            'best_score' => 0,
+            'best_total' => 0,
+            'total_score' => 0,
         ];
+
+        // Get client to access referral points
+        $client = Client::find($clientId);
+        $referralPoints = $client ? $client->referral_points : 0;
 
         if ($stats['total_attempts'] > 0) {
             $allAttempts = QuizAttempt::where('user_id', $clientId)
@@ -174,16 +179,22 @@ class ClientAuthController extends Controller
             });
             $stats['average_percentage'] = $totalPercentage / $stats['total_attempts'];
 
-            // Best score
-            $bestAttempt = $allAttempts->sortByDesc(function($attempt) {
-                return ($attempt->score / $attempt->total_questions);
-            })->first();
+            // Best score (raw quiz score without referrals, as they are added to the attempt score already)
+            // However, to show breakdown, we might want to separate them.
+            // But currently attempt->score ALREADY includes referral points.
+            
+            $bestAttempt = $allAttempts->sortByDesc('score')->first();
             
             if ($bestAttempt) {
                 $stats['best_score'] = $bestAttempt->score;
                 $stats['best_total'] = $bestAttempt->total_questions;
             }
         }
+        
+        // Total score is the best attempt score (which already includes referral points)
+        // If no attempts, it's just referral points? No, usually you need to do the quiz to be ranked.
+        // But let's assume total_score is what is used for ranking.
+        $stats['total_score'] = $stats['best_score'];
 
         return $stats;
     }

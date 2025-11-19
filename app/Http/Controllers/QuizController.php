@@ -29,6 +29,14 @@ class QuizController extends Controller
             return response()->json(['error' => 'Administradores não podem realizar o quiz.'], 403);
         }
 
+        // Clients can only take the quiz once
+        if (auth()->guard('client')->check()) {
+            $user = auth()->guard('client')->user();
+            if (QuizAttempt::where('user_id', $user->id)->where('user_type', \App\Models\Client::class)->exists()) {
+                return response()->json(['error' => 'Você já realizou o quiz. Apenas uma tentativa é permitida.'], 403);
+            }
+        }
+
         $limit = $request->input('limit', 10);
 
         $questions = Question::with('answers')
@@ -77,6 +85,12 @@ class QuizController extends Controller
         } elseif (auth()->guard('client')->check()) {
             $user = auth()->guard('client')->user();
             $userType = \App\Models\Client::class;
+            
+            // Check if client already took the quiz
+            if (QuizAttempt::where('user_id', $user->id)->where('user_type', $userType)->exists()) {
+                return response()->json(['error' => 'Você já realizou o quiz. Apenas uma tentativa é permitida.'], 403);
+            }
+
             \Log::info('Quiz submitted by Client', ['id' => $user->id, 'name' => $user->name]);
         } elseif (auth()->guard('parish')->check()) {
             $user = auth()->guard('parish')->user();
@@ -220,5 +234,27 @@ class QuizController extends Controller
         }
 
         return response()->json(['message' => 'Este quiz já pertence a um usuário.'], 400);
+    }
+    /**
+     * Get current ranking
+     */
+    public function getRanking()
+    {
+        $ranking = QuizAttempt::with('user')
+            ->whereNotNull('user_id') // Only registered users
+            ->orderByDesc('score')
+            ->orderBy('created_at')
+            ->take(10)
+            ->get()
+            ->map(function ($attempt) {
+                return [
+                    'name' => $attempt->user ? $attempt->user->name : 'Anônimo',
+                    'score' => $attempt->score,
+                    'date' => $attempt->created_at->format('d/m/Y H:i'),
+                    'is_current_user' => auth()->guard('client')->check() && auth()->guard('client')->id() === $attempt->user_id
+                ];
+            });
+
+        return response()->json($ranking);
     }
 }

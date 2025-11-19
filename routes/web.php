@@ -22,6 +22,7 @@ Route::get('/quiz', function () {
 // Quiz API Routes (using web middleware for session support)
 Route::prefix('api/quiz')->group(function () {
     Route::get('/questions', [App\Http\Controllers\QuizController::class, 'getQuestions']);
+    Route::get('/ranking', [App\Http\Controllers\QuizController::class, 'getRanking']);
     Route::post('/submit', [App\Http\Controllers\QuizController::class, 'submit']);
     Route::post('/validate-answer', [App\Http\Controllers\QuizController::class, 'validateAnswer']);
 });

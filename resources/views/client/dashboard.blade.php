@@ -1,6 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
+@push('styles')
+<style>
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+</style>
+@endpush
 <div class="container py-5">
     <div class="row">
         <div class="col-md-3">
@@ -67,45 +79,34 @@
                 </div>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="row g-3 g-md-4 mb-4">
-                <div class="col-12 col-sm-4">
-                    <div class="card bg-primary text-white shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-0">Total de Quizzes</h6>
-                                    <h2 class="mb-0 mt-2">{{ $stats['total_attempts'] }}</h2>
-                                </div>
-                                <i class="bi bi-clipboard-check" style="font-size: 3rem; opacity: 0.3;"></i>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Real-time Ranking -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-trophy-fill"></i> Ranking em Tempo Real</h5>
+                    <span class="badge bg-dark pulse-animation">Ao Vivo</span>
                 </div>
-                <div class="col-12 col-sm-4">
-                    <div class="card bg-success text-white shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-0">Média de Acertos</h6>
-                                    <h2 class="mb-0 mt-2">{{ number_format($stats['average_percentage'], 1) }}%</h2>
-                                </div>
-                                <i class="bi bi-graph-up-arrow" style="font-size: 3rem; opacity: 0.3;"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-4">
-                    <div class="card bg-warning text-white shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-0">Melhor Resultado</h6>
-                                    <h2 class="mb-0 mt-2">{{ $stats['best_score'] ?? 0 }}/{{ $stats['best_total'] ?? 0 }}</h2>
-                                </div>
-                                <i class="bi bi-trophy-fill" style="font-size: 3rem; opacity: 0.3;"></i>
-                            </div>
-                        </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0" id="rankingTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">#</th>
+                                    <th>Participante</th>
+                                    <th class="text-center">Pontuação Geral</th>
+                                    <th class="text-end pe-4">Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Ranking loaded via JS -->
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Carregando...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -198,11 +199,74 @@
         var copyText = document.getElementById("referralLink");
         copyText.select();
         copyText.setSelectionRange(0, 99999); // For mobile devices
-        navigator.clipboard.writeText(copyText.value).then(function() {
-            alert("Link copiado para a área de transferência!");
-        }, function(err) {
-            console.error('Erro ao copiar: ', err);
-        });
+        
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(copyText.value).then(function() {
+                alert("Link copiado para a área de transferência!");
+            }, function(err) {
+                console.error('Erro ao copiar: ', err);
+                fallbackCopyText(copyText);
+            });
+        } else {
+            fallbackCopyText(copyText);
+        }
     }
+
+    function fallbackCopyText(inputElement) {
+        try {
+            document.execCommand('copy');
+            alert("Link copiado para a área de transferência!");
+        } catch (err) {
+            console.error('Erro ao copiar (fallback): ', err);
+            alert("Não foi possível copiar automaticamente. Por favor, copie manualmente.");
+        }
+    }
+
+    // Real-time ranking
+    function fetchRanking() {
+        fetch('/api/quiz/ranking')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#rankingTable tbody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                Nenhum participante ainda. Seja o primeiro!
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                data.forEach((item, index) => {
+                    const isCurrentUser = item.is_current_user;
+                    const rowClass = isCurrentUser ? 'table-primary fw-bold' : '';
+                    const badge = index < 3 ? `<i class="bi bi-trophy-fill text-${index === 0 ? 'warning' : (index === 1 ? 'secondary' : 'danger')}"></i>` : '';
+                    
+                    const row = `
+                        <tr class="${rowClass}">
+                            <td class="ps-4 align-middle">${index + 1} ${badge}</td>
+                            <td class="align-middle">
+                                ${item.name}
+                                ${isCurrentUser ? '<span class="badge bg-primary ms-2">Você</span>' : ''}
+                            </td>
+                            <td class="text-center align-middle fw-bold">${item.score}</td>
+                            <td class="text-end pe-4 align-middle text-muted small">${item.date}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => console.error('Erro ao carregar ranking:', error));
+    }
+
+    // Initial load
+    fetchRanking();
+
+    // Poll every 10 seconds
+    setInterval(fetchRanking, 10000);
 </script>
 @endpush

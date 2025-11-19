@@ -210,6 +210,33 @@ document.addEventListener('DOMContentLoaded', function() {
 async function fetchQuestions() {
     try {
         const response = await fetch('/api/quiz/questions');
+        
+        if (response.status === 403) {
+            const data = await response.json();
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'none';
+            
+            const errorHtml = `
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-exclamation-circle text-warning" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="mb-3">Atenção!</h3>
+                    <p class="lead text-muted mb-4">${data.error}</p>
+                    <a href="{{ route('client.dashboard') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-speedometer2"></i> Ir para o Dashboard
+                    </a>
+                </div>
+            `;
+            
+            // Replace the entire card body content or just the quiz container area
+            // To be safe, let's replace the loading div's parent content if possible, 
+            // or just hide everything and append this message.
+            // Since we are inside card-body, let's replace card-body content.
+            document.querySelector('.card-body').innerHTML = errorHtml;
+            return;
+        }
+
         questions = await response.json();
         
         if (questions.length === 0) {
