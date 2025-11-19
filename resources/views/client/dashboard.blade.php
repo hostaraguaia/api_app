@@ -32,6 +32,41 @@
         </div>
 
         <div class="col-md-9">
+            <!-- Referral Section -->
+            <div class="card shadow-sm mb-4 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-share-fill"></i> Indique e Ganhe Pontos!</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <p class="mb-2">Compartilhe seu link exclusivo e ganhe <strong>1 ponto extra</strong> no ranking para cada amigo que se cadastrar!</p>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" value="{{ route('client.register', ['ref' => $client->referral_code]) }}" id="referralLink" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyLink()">
+                                    <i class="bi bi-clipboard"></i> Copiar
+                                </button>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="https://wa.me/?text=Venha%20participar%20do%20Quiz%20B%C3%ADblico!%20Cadastre-se%20pelo%20meu%20link:%20{{ urlencode(route('client.register', ['ref' => $client->referral_code])) }}" target="_blank" class="btn btn-success">
+                                    <i class="bi bi-whatsapp"></i> WhatsApp
+                                </a>
+                                <button onclick="copyLink()" class="btn btn-danger" title="Copiar link para Instagram">
+                                    <i class="bi bi-instagram"></i> Instagram
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="p-3 bg-light rounded">
+                                <h6 class="text-muted">Seus Pontos de Indicação</h6>
+                                <h1 class="display-4 text-primary fw-bold">{{ $client->referral_points }}</h1>
+                                <small class="text-muted">amigos indicados</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Stats Cards -->
             <div class="row g-3 g-md-4 mb-4">
                 <div class="col-12 col-sm-4">
@@ -156,3 +191,18 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function copyLink() {
+        var copyText = document.getElementById("referralLink");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+        navigator.clipboard.writeText(copyText.value).then(function() {
+            alert("Link copiado para a área de transferência!");
+        }, function(err) {
+            console.error('Erro ao copiar: ', err);
+        });
+    }
+</script>
+@endpush

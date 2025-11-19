@@ -29,6 +29,9 @@ class Client extends Authenticatable
         'city',
         'state',
         'zip_code',
+        'referral_code',
+        'referred_by',
+        'referral_points',
     ];
 
     /**
@@ -60,5 +63,21 @@ class Client extends Authenticatable
     public function quizAttempts()
     {
         return $this->morphMany(QuizAttempt::class, 'user');
+    }
+
+    /**
+     * Get the client who referred this client.
+     */
+    public function referrer()
+    {
+        return $this->belongsTo(Client::class, 'referred_by');
+    }
+
+    /**
+     * Get the clients referred by this client.
+     */
+    public function referrals()
+    {
+        return $this->hasMany(Client::class, 'referred_by');
     }
 }

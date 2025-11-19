@@ -42,9 +42,10 @@ class ClientAuthController extends Controller
     /**
      * Show the registration form
      */
-    public function showRegisterForm()
+    public function showRegisterForm(Request $request)
     {
-        return view('client.register');
+        $referralCode = $request->query('ref');
+        return view('client.register', compact('referralCode'));
     }
 
     /**
@@ -68,6 +69,18 @@ class ClientAuthController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
+        // Find referrer if code provided
+        $referrer = null;
+        if ($request->referral_code) {
+            $referrer = Client::where('referral_code', $request->referral_code)->first();
+        }
+
+        // Generate unique referral code
+        $referralCode = \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(8));
+        while(Client::where('referral_code', $referralCode)->exists()) {
+            $referralCode = \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(8));
+        }
+
         // Create the client
         $client = Client::create([
             'name' => $request->name,
@@ -79,7 +92,16 @@ class ClientAuthController extends Controller
             'city' => $request->city,
             'state' => $request->state,
             'zip_code' => $request->zip_code,
+            'referral_code' => $referralCode,
+            'referred_by' => $referrer ? $referrer->id : null,
         ]);
+
+        // Add points to referrer
+        if ($referrer) {
+            $referrer->increment('referral_points', 1);
+            // Update all quiz attempts scores for the referrer
+            $referrer->quizAttempts()->increment('score', 1);
+        }
 
         // Link quiz attempt if provided
         if ($request->quiz_attempt_id) {

@@ -34,6 +34,7 @@
                     <form method="POST" action="{{ route('client.register.submit') }}" id="registerForm">
                         @csrf
                         <input type="hidden" name="quiz_attempt_id" value="{{ request('quiz_attempt_id') }}">
+                        <input type="hidden" name="referral_code" value="{{ $referralCode ?? request('ref') }}">
 
                         <!-- Step 1: Dados Pessoais -->
                         <div class="step-content" id="step1">

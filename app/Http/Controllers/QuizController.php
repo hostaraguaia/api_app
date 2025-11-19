@@ -118,6 +118,11 @@ class QuizController extends Controller
             ]);
         }
 
+        // Add referral points if user is Client
+        if ($userType === \App\Models\Client::class && $user) {
+            $score += $user->referral_points;
+        }
+
         // Update quiz attempt with final score
         $quizAttempt->update(['score' => $score]);
 
