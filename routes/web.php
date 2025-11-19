@@ -13,6 +13,9 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/quiz', function () {
+    if (auth()->guard('web')->check()) {
+        return redirect()->route('user.dashboard');
+    }
     return view('quiz.index');
 })->name('quiz.start');
 

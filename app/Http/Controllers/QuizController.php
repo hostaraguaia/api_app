@@ -24,6 +24,11 @@ class QuizController extends Controller
 
     public function getQuestions(Request $request)
     {
+        // System users (admins) cannot take the quiz
+        if (auth()->guard('web')->check()) {
+            return response()->json(['error' => 'Administradores não podem realizar o quiz.'], 403);
+        }
+
         $limit = $request->input('limit', 10);
 
         $questions = Question::with('answers')
@@ -67,14 +72,12 @@ class QuizController extends Controller
         }
         
         // Check different guards
-        if (auth()->guard('client')->check()) {
+        if (auth()->guard('web')->check()) {
+            return response()->json(['error' => 'Administradores não podem realizar o quiz.'], 403);
+        } elseif (auth()->guard('client')->check()) {
             $user = auth()->guard('client')->user();
             $userType = \App\Models\Client::class;
             \Log::info('Quiz submitted by Client', ['id' => $user->id, 'name' => $user->name]);
-        } elseif (auth()->guard('web')->check()) {
-            $user = auth()->guard('web')->user();
-            $userType = \App\Models\User::class;
-            \Log::info('Quiz submitted by User', ['id' => $user->id, 'name' => $user->name]);
         } elseif (auth()->guard('parish')->check()) {
             $user = auth()->guard('parish')->user();
             $userType = \App\Models\Parish::class;
@@ -169,6 +172,11 @@ class QuizController extends Controller
             'question_id' => 'required|exists:questions,id',
             'answer_id' => 'required|exists:answers,id'
         ]);
+
+        // System users (admins) cannot take the quiz
+        if (auth()->guard('web')->check()) {
+            return response()->json(['error' => 'Administradores não podem realizar o quiz.'], 403);
+        }
 
         $question = Question::with('answers')->findOrFail($request->question_id);
         $selectedAnswer = $question->answers()->find($request->answer_id);
