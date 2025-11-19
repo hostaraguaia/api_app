@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Question;
@@ -57,7 +57,32 @@ class QuizController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $user = auth()->user();
+        // Detect authenticated user and guard
+        $user = null;
+        $userType = null;
+        
+        // Start session if not started
+        if (!$request->hasSession()) {
+            $request->setLaravelSession(app('session.store'));
+        }
+        
+        // Check different guards
+        if (auth()->guard('client')->check()) {
+            $user = auth()->guard('client')->user();
+            $userType = \App\Models\Client::class;
+            \Log::info('Quiz submitted by Client', ['id' => $user->id, 'name' => $user->name]);
+        } elseif (auth()->guard('web')->check()) {
+            $user = auth()->guard('web')->user();
+            $userType = \App\Models\User::class;
+            \Log::info('Quiz submitted by User', ['id' => $user->id, 'name' => $user->name]);
+        } elseif (auth()->guard('parish')->check()) {
+            $user = auth()->guard('parish')->user();
+            $userType = \App\Models\Parish::class;
+            \Log::info('Quiz submitted by Parish', ['id' => $user->id, 'name' => $user->name]);
+        } else {
+            \Log::info('Quiz submitted anonymously', ['session' => session()->getId()]);
+        }
+        
         $answers = $request->input('answers');
         $score = 0;
         $totalQuestions = count($answers);
@@ -65,6 +90,7 @@ class QuizController extends Controller
         // Create quiz attempt
         $quizAttempt = QuizAttempt::create([
             'user_id' => $user ? $user->id : null,
+            'user_type' => $userType,
             'session_id' => $user ? null : session()->getId(),
             'score' => 0,
             'total_questions' => $totalQuestions,
@@ -132,5 +158,54 @@ class QuizController extends Controller
             ->paginate(10);
 
         return response()->json($history);
+    }
+
+    /**
+     * Validate a single answer and return immediate feedback
+     */
+    public function validateAnswer(Request $request)
+    {
+        $request->validate([
+            'question_id' => 'required|exists:questions,id',
+            'answer_id' => 'required|exists:answers,id'
+        ]);
+
+        $question = Question::with('answers')->findOrFail($request->question_id);
+        $selectedAnswer = $question->answers()->find($request->answer_id);
+        
+        if (!$selectedAnswer) {
+            return response()->json(['error' => 'Resposta inválida para esta pergunta'], 400);
+        }
+
+        $correctAnswer = $question->answers()->where('is_correct', true)->first();
+        
+        return response()->json([
+            'correct' => $selectedAnswer->is_correct,
+            'correct_answer_id' => $correctAnswer ? $correctAnswer->id : null
+        ]);
+    }
+
+    /**
+     * Link an anonymous quiz attempt to the authenticated user
+     */
+    public function linkAttempt(Request $request)
+    {
+        $request->validate([
+            'quiz_attempt_id' => 'required|exists:quiz_attempts,id'
+        ]);
+
+        $user = auth()->user();
+        $quizAttempt = QuizAttempt::findOrFail($request->quiz_attempt_id);
+
+        // Only link if it doesn't have a user yet
+        if (!$quizAttempt->user_id) {
+            $quizAttempt->update([
+                'user_id' => $user->id,
+                'session_id' => null // Clear session ID as it's now owned by user
+            ]);
+            return response()->json(['message' => 'Quiz vinculado com sucesso!']);
+        }
+
+        return response()->json(['message' => 'Este quiz já pertence a um usuário.'], 400);
     }
 }

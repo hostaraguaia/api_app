@@ -46,12 +46,12 @@ return [
         ],
 
         'client' => [
-            'driver' => 'passport',
+            'driver' => 'session',
             'provider' => 'clients',
         ],
 
         'parish' => [
-            'driver' => 'passport',
+            'driver' => 'session',
             'provider' => 'parishs',
         ],
     ],

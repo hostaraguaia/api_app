@@ -63,3 +63,4 @@ public/images/data
 /.qodo
 .qodo
 .docker/postgresql/data
+.history/

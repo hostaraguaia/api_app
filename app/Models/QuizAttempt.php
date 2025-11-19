@@ -8,6 +8,7 @@ class QuizAttempt extends Model
 {
     protected $fillable = [
         'user_id',
+        'user_type',
         'session_id',
         'score',
         'total_questions',
@@ -18,9 +19,12 @@ class QuizAttempt extends Model
         'completed_at' => 'datetime',
     ];
 
+    /**
+     * Get the owning user model (polymorphic).
+     */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 
     public function quizAnswers()

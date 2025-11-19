@@ -11,7 +11,7 @@ use Laravel\Passport\HasApiTokens;
 class Client extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +22,13 @@ class Client extends Authenticatable
         'name',
         'email',
         'password',
+        'cpf',
+        'phone',
+        'address',
+        'parish',
+        'city',
+        'state',
+        'zip_code',
     ];
 
     /**
@@ -45,5 +52,13 @@ class Client extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get all quiz attempts for this client.
+     */
+    public function quizAttempts()
+    {
+        return $this->morphMany(QuizAttempt::class, 'user');
     }
 }
