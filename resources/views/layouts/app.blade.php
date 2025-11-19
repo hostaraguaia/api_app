@@ -75,14 +75,14 @@
                             </li>
                         @else
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('client.login') }}">Login Cliente</a>
+                                <a class="nav-link" href="{{ route('client.login') }}">Login </a>
                             </li>
-                            <li class="nav-item">
+                            <!-- <li class="nav-item">
                                 <a class="nav-link" href="{{ route('client.register') }}">Registro Cliente</a>
-                            </li>
-                            <li class="nav-item">
+                            </li> -->
+                            <!-- <li class="nav-item">
                                 <a class="nav-link" href="{{ route('user.login') }}">Admin</a>
-                            </li>
+                            </li> -->
                         @endif
                     </ul>
                 </div>
