@@ -350,16 +350,20 @@ async function selectAnswer(answerId, questionId) {
             incorrectCount++;
             
             // Show correct answer
+            // Note: Backend no longer returns correct_answer_id for security reasons.
+            // So we only show that the selected answer was incorrect.
+            /*
             const correctAnswerId = result.correct_answer_id;
-            console.log('Correct Answer ID:', correctAnswerId);
-            const correctOption = document.querySelector(`[data-answer-id="${correctAnswerId}"]`);
-            console.log('Correct Option Element:', correctOption);
-            if (correctOption) {
-                correctOption.classList.add('correct');
-                const correctIcon = correctOption.querySelector('.answer-icon i');
-                correctIcon.classList.add('bi-check-circle-fill', 'text-success');
-                correctOption.querySelector('.answer-icon').style.display = 'block';
+            if (correctAnswerId) {
+                const correctOption = document.querySelector(`[data-answer-id="${correctAnswerId}"]`);
+                if (correctOption) {
+                    correctOption.classList.add('correct');
+                    const correctIcon = correctOption.querySelector('.answer-icon i');
+                    correctIcon.classList.add('bi-check-circle-fill', 'text-success');
+                    correctOption.querySelector('.answer-icon').style.display = 'block';
+                }
             }
+            */
         }
         
         iconContainer.style.display = 'block';

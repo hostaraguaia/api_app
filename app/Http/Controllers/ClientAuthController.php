@@ -230,4 +230,17 @@ class ClientAuthController extends Controller
 
         return redirect()->route('home');
     }
+    /**
+     * Get client stats for real-time updates
+     */
+    public function getStats()
+    {
+        $client = Auth::guard('client')->user();
+        $stats = $this->calculateQuizStatistics($client->id);
+        
+        return response()->json([
+            'referral_points' => $client->referral_points,
+            'total_score' => $stats['total_score']
+        ]);
+    }
 }

@@ -71,7 +71,7 @@
                         <div class="col-md-4 text-center">
                             <div class="p-3 bg-light rounded">
                                 <h6 class="text-muted">Seus Pontos de Indicação</h6>
-                                <h1 class="display-4 text-primary fw-bold">{{ $client->referral_points }}</h1>
+                                <h1 class="display-4 text-primary fw-bold" id="referral-points">{{ $client->referral_points }}</h1>
                                 <small class="text-muted">amigos indicados</small>
                             </div>
                         </div>
@@ -263,10 +263,27 @@
             .catch(error => console.error('Erro ao carregar ranking:', error));
     }
 
+    // Real-time stats
+    function fetchStats() {
+        fetch('{{ route("client.stats") }}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('referral-points').textContent = data.referral_points;
+                // Update total score if element exists (it might have been removed in previous steps, but let's be safe)
+                // Actually, we removed the stats cards, so we only need to update referral points.
+                // Wait, we kept the referral points display in the referral section.
+            })
+            .catch(error => console.error('Erro ao carregar estatísticas:', error));
+    }
+
     // Initial load
     fetchRanking();
+    // fetchStats(); // Initial load is already server-side rendered
 
     // Poll every 10 seconds
-    setInterval(fetchRanking, 10000);
+    setInterval(() => {
+        fetchRanking();
+        fetchStats();
+    }, 10000);
 </script>
 @endpush

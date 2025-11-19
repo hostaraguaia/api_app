@@ -66,6 +66,7 @@ Route::prefix('client')->name('client.')->group(function () {
     // Authenticated routes
     Route::middleware('auth:client')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\ClientAuthController::class, 'dashboard'])->name('dashboard');
+        Route::get('/stats', [App\Http\Controllers\ClientAuthController::class, 'getStats'])->name('stats');
         Route::get('/quiz/{id}', [App\Http\Controllers\ClientAuthController::class, 'quizDetails'])->name('quiz.details');
         Route::post('/logout', [App\Http\Controllers\ClientAuthController::class, 'logout'])->name('logout');
     });
