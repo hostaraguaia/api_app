@@ -7,16 +7,16 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Nova Pergunta</h4>
-                    <a href="{{ route('dashboard.questions.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('user.questions.index') }}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Voltar
                     </a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('dashboard.questions.store') }}" method="POST">
+                    <form action="{{ route('user.questions.store') }}" method="POST" id="questionForm">
                         @csrf
                         
-                        <div class="mb-3">
-                            <label for="question" class="form-label">Pergunta *</label>
+                        <div class="mb-4">
+                            <label for="question" class="form-label">Pergunta</label>
                             <textarea 
                                 class="form-control @error('question') is-invalid @enderror" 
                                 id="question" 
@@ -28,30 +28,28 @@
                             @enderror
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="difficulty" class="form-label">Dificuldade *</label>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="difficulty" class="form-label">Dificuldade</label>
                                 <select class="form-select @error('difficulty') is-invalid @enderror" id="difficulty" name="difficulty" required>
-                                    <option value="">Selecione...</option>
-                                    <option value="easy" {{ old('difficulty') === 'easy' ? 'selected' : '' }}>Fácil</option>
-                                    <option value="medium" {{ old('difficulty') === 'medium' ? 'selected' : '' }}>Média</option>
-                                    <option value="hard" {{ old('difficulty') === 'hard' ? 'selected' : '' }}>Difícil</option>
+                                    <option value="easy" {{ old('difficulty') == 'easy' ? 'selected' : '' }}>Fácil</option>
+                                    <option value="medium" {{ old('difficulty') == 'medium' ? 'selected' : '' }}>Média</option>
+                                    <option value="hard" {{ old('difficulty') == 'hard' ? 'selected' : '' }}>Difícil</option>
                                 </select>
                                 @error('difficulty')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status</label>
+                            <div class="col-md-6">
+                                <label for="is_active" class="form-label">Status</label>
                                 <div class="form-check form-switch">
                                     <input 
                                         class="form-check-input" 
                                         type="checkbox" 
                                         id="is_active" 
                                         name="is_active" 
-                                        value="1"
-                                        {{ old('is_active', true) ? 'checked' : '' }}>
+                                        value="1" {{ old('is_active', true) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="is_active">
                                         Ativa
                                     </label>
@@ -59,26 +57,24 @@
                             </div>
                         </div>
 
-                        <hr class="my-4">
-
-                        <h5 class="mb-3">Respostas (mínimo 2, máximo 4)</h5>
+                        <h5 class="mb-3">Respostas</h5>
                         
                         <div id="answers-container">
-                            @for($i = 0; $i < 2; $i++)
-                                <div class="card mb-3 answer-item">
+                            @for($i = 0; $i < 4; $i++)
+                                <div class="card mb-3 answer-card">
                                     <div class="card-body">
                                         <div class="row align-items-center">
+                                            <div class="col-md-1 text-center">
+                                                <span class="badge bg-secondary rounded-circle p-2">{{ $i + 1 }}</span>
+                                            </div>
                                             <div class="col-md-8">
-                                                <label class="form-label">Resposta {{ $i + 1 }} *</label>
                                                 <input 
                                                     type="text" 
-                                                    class="form-control @error('answers.'.$i.'.answer') is-invalid @enderror" 
+                                                    class="form-control" 
                                                     name="answers[{{ $i }}][answer]" 
+                                                    placeholder="Digite a resposta"
                                                     value="{{ old('answers.'.$i.'.answer') }}"
                                                     required>
-                                                @error('answers.'.$i.'.answer')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-check">
@@ -87,9 +83,10 @@
                                                         type="radio" 
                                                         name="correct_answer" 
                                                         value="{{ $i }}"
-                                                        {{ old('correct_answer') == $i ? 'checked' : ($i === 0 && !old('correct_answer') ? 'checked' : '') }}>
+                                                        {{ old('correct_answer') == $i ? 'checked' : ($i == 0 ? 'checked' : '') }}
+                                                        required>
                                                     <label class="form-check-label">
-                                                        Resposta Correta
+                                                        Correta
                                                     </label>
                                                 </div>
                                                 <input type="hidden" name="answers[{{ $i }}][is_correct]" value="{{ $i === 0 ? '1' : '0' }}" class="is-correct-input">
@@ -108,7 +105,7 @@
                         </button>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{{ route('dashboard.questions.index') }}" class="btn btn-secondary">
+                            <a href="{{ route('user.questions.index') }}" class="btn btn-secondary">
                                 Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">

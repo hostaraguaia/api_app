@@ -32,10 +32,10 @@
         </div>
 
         <div class="col-md-9">
-            <!-- Statistics Cards -->
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card bg-primary text-white shadow-sm">
+            <!-- Stats Cards -->
+            <div class="row g-3 g-md-4 mb-4">
+                <div class="col-12 col-sm-4">
+                    <div class="card bg-primary text-white shadow-sm h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -47,8 +47,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card bg-success text-white shadow-sm">
+                <div class="col-12 col-sm-4">
+                    <div class="card bg-success text-white shadow-sm h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -60,8 +60,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card bg-warning text-white shadow-sm">
+                <div class="col-12 col-sm-4">
+                    <div class="card bg-warning text-white shadow-sm h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -143,9 +143,11 @@
                         <div class="text-center py-5">
                             <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
                             <p class="text-muted mt-3">Você ainda não fez nenhum quiz.</p>
-                            <a href="{{ route('quiz.start') }}" class="btn btn-primary">
-                                <i class="bi bi-play-circle"></i> Fazer Primeiro Quiz
-                            </a>
+                            <div class="d-flex gap-2 justify-content-center">
+                                <a href="{{ route('quiz.start') }}" class="btn btn-primary">
+                                    <i class="bi bi-play-circle"></i> Iniciar Novo Quiz
+                                </a>
+                            </div>
                         </div>
                     @endif
                 </div>

@@ -34,39 +34,56 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        @guest('client')
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('client.login') }}">Login</a>
+                        <!-- Authentication Links -->
+                        @if(Auth::guard('web')->check())
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    {{ Auth::guard('web')->user()->name }} (Admin)
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('user.dashboard') }}">Dashboard</a>
+                                    <a class="dropdown-item" href="{{ route('user.logout') }}"
+                                       onclick="event.preventDefault();
+                                                     document.getElementById('logout-form-user').submit();">
+                                        {{ __('Logout') }}
+                                    </a>
+
+                                    <form id="logout-form-user" action="{{ route('user.logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                </div>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('client.register') }}">Cadastrar</a>
+                        @elseif(Auth::guard('client')->check())
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    {{ Auth::guard('client')->user()->name }}
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('client.dashboard') }}">Dashboard</a>
+                                    <a class="dropdown-item" href="{{ route('client.logout') }}"
+                                       onclick="event.preventDefault();
+                                                     document.getElementById('logout-form-client').submit();">
+                                        {{ __('Logout') }}
+                                    </a>
+
+                                    <form id="logout-form-client" action="{{ route('client.logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                </div>
                             </li>
                         @else
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('quiz.start') }}">
-                                    <i class="bi bi-play-circle"></i> Quiz
-                                </a>
+                                <a class="nav-link" href="{{ route('client.login') }}">Login Cliente</a>
                             </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle"></i> {{ Auth::guard('client')->user()->name }}
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="{{ route('client.dashboard') }}">
-                                        <i class="bi bi-speedometer2"></i> Dashboard
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form method="POST" action="{{ route('client.logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="bi bi-box-arrow-right"></i> Sair
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('client.register') }}">Registro Cliente</a>
                             </li>
-                        @endguest
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('user.login') }}">Admin</a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
             </div>

@@ -7,94 +7,64 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Editar Pergunta</h4>
-                    <a href="{{ route('dashboard.questions.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('user.questions.index') }}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Voltar
                     </a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('dashboard.questions.update', $question) }}" method="POST">
+                    <form action="{{ route('user.questions.update', $question) }}" method="POST" id="questionForm">
                         @csrf
                         @method('PUT')
-                        
-                        <div class="mb-3">
-                            <label for="question" class="form-label">Pergunta *</label>
-                            <textarea 
-                                class="form-control @error('question') is-invalid @enderror" 
-                                id="question" 
-                                name="question" 
-                                rows="3" 
-                                required>{{ old('question', $question->question) }}</textarea>
+
+                        <div class="mb-4">
+                            <label for="question" class="form-label">Pergunta</label>
+                            <textarea class="form-control @error('question') is-invalid @enderror" id="question" name="question" rows="3" required>{{ old('question', $question->question) }}</textarea>
                             @error('question')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="difficulty" class="form-label">Dificuldade *</label>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="difficulty" class="form-label">Dificuldade</label>
                                 <select class="form-select @error('difficulty') is-invalid @enderror" id="difficulty" name="difficulty" required>
-                                    <option value="">Selecione...</option>
-                                    <option value="easy" {{ old('difficulty', $question->difficulty) === 'easy' ? 'selected' : '' }}>Fácil</option>
-                                    <option value="medium" {{ old('difficulty', $question->difficulty) === 'medium' ? 'selected' : '' }}>Média</option>
-                                    <option value="hard" {{ old('difficulty', $question->difficulty) === 'hard' ? 'selected' : '' }}>Difícil</option>
+                                    <option value="easy" {{ old('difficulty', $question->difficulty) == 'easy' ? 'selected' : '' }}>Fácil</option>
+                                    <option value="medium" {{ old('difficulty', $question->difficulty) == 'medium' ? 'selected' : '' }}>Média</option>
+                                    <option value="hard" {{ old('difficulty', $question->difficulty) == 'hard' ? 'selected' : '' }}>Difícil</option>
                                 </select>
                                 @error('difficulty')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status</label>
+                            <div class="col-md-6">
+                                <label for="is_active" class="form-label">Status</label>
                                 <div class="form-check form-switch">
-                                    <input 
-                                        class="form-check-input" 
-                                        type="checkbox" 
-                                        id="is_active" 
-                                        name="is_active" 
-                                        value="1"
-                                        {{ old('is_active', $question->is_active) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="is_active">
-                                        Ativa
-                                    </label>
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', $question->is_active) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_active">Ativa</label>
                                 </div>
                             </div>
                         </div>
 
-                        <hr class="my-4">
-
-                        <h5 class="mb-3">Respostas (mínimo 2, máximo 4)</h5>
-                        
+                        <h5 class="mb-3">Respostas</h5>
                         <div id="answers-container">
                             @foreach($question->answers as $index => $answer)
-                                <div class="card mb-3 answer-item">
+                                <div class="card mb-3 answer-card">
                                     <div class="card-body">
                                         <div class="row align-items-center">
+                                            <div class="col-md-1 text-center">
+                                                <span class="badge bg-secondary rounded-circle p-2">{{ $index + 1 }}</span>
+                                            </div>
                                             <div class="col-md-8">
                                                 <input type="hidden" name="answers[{{ $index }}][id]" value="{{ $answer->id }}">
-                                                <label class="form-label">Resposta {{ $index + 1 }} *</label>
-                                                <input 
-                                                    type="text" 
-                                                    class="form-control @error('answers.'.$index.'.answer') is-invalid @enderror" 
-                                                    name="answers[{{ $index }}][answer]" 
-                                                    value="{{ old('answers.'.$index.'.answer', $answer->answer) }}"
-                                                    required>
-                                                @error('answers.'.$index.'.answer')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
+                                                <input type="text" class="form-control" name="answers[{{ $index }}][answer]" placeholder="Digite a resposta" required value="{{ old('answers.'.$index.'.answer', $answer->answer) }}">
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-check">
-                                                    <input 
-                                                        class="form-check-input correct-answer-radio" 
-                                                        type="radio" 
-                                                        name="correct_answer" 
-                                                        value="{{ $index }}"
-                                                        {{ old('answers.'.$index.'.is_correct', $answer->is_correct) ? 'checked' : '' }}>
-                                                    <label class="form-check-label">
-                                                        Resposta Correta
-                                                    </label>
+                                                    <input class="form-check-input correct-answer-radio" type="radio" name="correct_answer" value="{{ $index }}" {{ old('correct_answer', $answer->is_correct ? $index : '') == $index ? 'checked' : '' }} required>
+                                                    <label class="form-check-label">Correta</label>
                                                 </div>
-                                                <input type="hidden" name="answers[{{ $index }}][is_correct]" value="0" class="is-correct-input">
+                                                <!-- Hidden inputs for is_correct -->
+                                                <input type="hidden" name="answers[{{ $index }}][is_correct]" class="is-correct-input" value="{{ $answer->is_correct ? '1' : '0' }}">
                                             </div>
                                             <div class="col-md-1">
                                                 @if($index > 1)
@@ -113,13 +83,9 @@
                             <i class="bi bi-plus-circle"></i> Adicionar Resposta
                         </button>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{{ route('dashboard.questions.index') }}" class="btn btn-secondary">
-                                Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save"></i> Salvar Alterações
-                            </button>
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ route('user.questions.index') }}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                         </div>
                     </form>
                 </div>

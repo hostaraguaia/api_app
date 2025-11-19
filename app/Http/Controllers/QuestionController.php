@@ -18,8 +18,8 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $questions = Question::with('answers')->paginate(10);
-        return view('dashboard.questions.index', compact('questions'));
+        $questions = Question::with('answers')->latest()->get();
+        return view('user.questions.index', compact('questions'));
     }
 
     /**
@@ -27,7 +27,7 @@ class QuestionController extends Controller
      */
     public function create()
     {
-        return view('dashboard.questions.create');
+        return view('user.questions.create');
     }
 
     /**
@@ -54,7 +54,7 @@ class QuestionController extends Controller
             $question->answers()->create($answerData);
         }
 
-        return redirect()->route('dashboard.questions.index')
+        return redirect()->route('user.questions.index')
             ->with('success', 'Pergunta criada com sucesso!');
     }
 
@@ -64,7 +64,7 @@ class QuestionController extends Controller
     public function show(Question $question)
     {
         $question->load('answers');
-        return view('dashboard.questions.show', compact('question'));
+        return view('user.questions.show', compact('question'));
     }
 
     /**
@@ -73,7 +73,7 @@ class QuestionController extends Controller
     public function edit(Question $question)
     {
         $question->load('answers');
-        return view('dashboard.questions.edit', compact('question'));
+        return view('user.questions.edit', compact('question'));
     }
 
     /**
@@ -121,7 +121,7 @@ class QuestionController extends Controller
         // Delete removed answers
         $question->answers()->whereNotIn('id', $answerIds)->delete();
 
-        return redirect()->route('dashboard.questions.index')
+        return redirect()->route('user.questions.index')
             ->with('success', 'Pergunta atualizada com sucesso!');
     }
 
@@ -131,7 +131,7 @@ class QuestionController extends Controller
     public function destroy(Question $question)
     {
         $question->delete();
-        return redirect()->route('dashboard.questions.index')
+        return redirect()->route('user.questions.index')
             ->with('success', 'Pergunta excluída com sucesso!');
     }
 
