@@ -20,7 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
 
-    'allowed_origins' => ['*', 'http://168.0.198.45', 'http://168.0.198.45:9873', 'https://168.0.198.45', 'https://168.0.198.45:9873'],
+    'allowed_origins' => ['*', 'http://beatify.com.br ', 'http://www.beatify.com.br','http://www.beatify.com.br:80','http://www.beatify.com.br:443', 'https://beatify.com.br', 'https://www.beatify.com.br', 'http://www.beatify.com.br:80', 'https://www.beatify.com.br:443'],
 
     'allowed_origins_patterns' => [],
 
