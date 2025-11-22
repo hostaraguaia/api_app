@@ -78,8 +78,8 @@ RUN echo "memory_limit = 6G" >> /usr/local/etc/php/conf.d/custom.ini && \
 
 
 
-ENV PORT=9873
-EXPOSE 9873 9443
+ENV PORT=80
+EXPOSE 80 443
 
 USER $user
 

@@ -31,8 +31,8 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "9873:80"
-      - "9443:443"
+      - "80:80"
+      - "443:443"
     deploy:
       resources:
         limits:
@@ -51,10 +51,10 @@ services:
     image: postgres:15
     restart: unless-stopped
     environment:
-      PGPASSWORD: '${DB_PASSWORD:-secret}'
-      POSTGRES_DB: '${DB_DATABASE}'
+      PGPASSWORD: "${DB_PASSWORD:-secret}"
+      POSTGRES_DB: "${DB_DATABASE}"
       POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
-      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_USER: "${DB_USERNAME}"
     deploy:
       resources:
         limits:
@@ -73,7 +73,14 @@ services:
     container_name: Apicatholic-redis
     image: redis:7-alpine
     restart: unless-stopped
-    command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "allkeys-lru"]
+    command:
+      [
+        "redis-server",
+        "--maxmemory",
+        "1gb",
+        "--maxmemory-policy",
+        "allkeys-lru",
+      ]
     deploy:
       resources:
         limits:
