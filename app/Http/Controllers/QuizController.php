@@ -58,6 +58,9 @@ class QuizController extends Controller
     /**
      * Submit quiz answers and calculate score
      */
+    /**
+     * Submit quiz answers and calculate score
+     */
     public function submit(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -73,19 +76,19 @@ class QuizController extends Controller
         // Detect authenticated user and guard
         $user = null;
         $userType = null;
-        
+
         // Start session if not started
         if (!$request->hasSession()) {
             $request->setLaravelSession(app('session.store'));
         }
-        
+
         // Check different guards
         if (auth()->guard('web')->check()) {
             return response()->json(['error' => 'Administradores não podem realizar o quiz.'], 403);
         } elseif (auth()->guard('client')->check()) {
             $user = auth()->guard('client')->user();
             $userType = \App\Models\Client::class;
-            
+
             // Check if client already took the quiz
             if (QuizAttempt::where('user_id', $user->id)->where('user_type', $userType)->exists()) {
                 return response()->json(['error' => 'Você já realizou o quiz. Apenas uma tentativa é permitida.'], 403);
@@ -99,37 +102,56 @@ class QuizController extends Controller
         } else {
             \Log::info('Quiz submitted anonymously', ['session' => session()->getId()]);
         }
-        
-        $answers = $request->input('answers');
-        $score = 0;
-        $totalQuestions = count($answers);
 
-        // Create quiz attempt
+        $answersInput = $request->input('answers');
+        $totalQuestions = count($answersInput);
+
+        // Eager load all questions and answers involved in the submission
+        $questionIds = array_column($answersInput, 'question_id');
+        $questions = Question::with('answers')->whereIn('id', $questionIds)->get()->keyBy('id');
+
+        $score = 0;
+        $quizAnswersData = [];
+
+        // Create quiz attempt first
         $quizAttempt = QuizAttempt::create([
             'user_id' => $user ? $user->id : null,
             'user_type' => $userType,
             'session_id' => $user ? null : session()->getId(),
-            'score' => 0,
+            'score' => 0, // Will update later
             'total_questions' => $totalQuestions,
             'completed_at' => now(),
         ]);
 
-        // Process each answer
-        foreach ($answers as $answerData) {
-            $question = Question::find($answerData['question_id']);
-            $answer = $question->answers()->find($answerData['answer_id']);
+        foreach ($answersInput as $answerData) {
+            $questionId = $answerData['question_id'];
+            $answerId = $answerData['answer_id'];
 
-            $isCorrect = $answer && $answer->is_correct;
+            if (!isset($questions[$questionId])) {
+                continue; // Should be caught by validation, but safe check
+            }
+
+            $question = $questions[$questionId];
+            $selectedAnswer = $question->answers->where('id', $answerId)->first();
+
+            $isCorrect = $selectedAnswer && $selectedAnswer->is_correct;
             if ($isCorrect) {
                 $score++;
             }
 
-            QuizAnswer::create([
+            $quizAnswersData[] = [
                 'quiz_attempt_id' => $quizAttempt->id,
-                'question_id' => $answerData['question_id'],
-                'answer_id' => $answerData['answer_id'],
+                'question_id' => $questionId,
+                'answer_id' => $answerId,
                 'is_correct' => $isCorrect,
-            ]);
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        // Bulk insert answers
+        if (!empty($quizAnswersData)) {
+            QuizAnswer::insert($quizAnswersData);
         }
 
         // Add referral points if user is Client
@@ -199,7 +221,7 @@ class QuizController extends Controller
 
         $question = Question::with('answers')->findOrFail($request->question_id);
         $selectedAnswer = $question->answers()->find($request->answer_id);
-        
+
         if (!$selectedAnswer) {
             return response()->json(['error' => 'Resposta inválida para esta pergunta'], 400);
         }
@@ -208,7 +230,7 @@ class QuizController extends Controller
         // from easily discovering the correct answer by trial and error without visual feedback.
         // Ideally, for a strict quiz, this endpoint should be removed and validation done only at the end.
         // However, for interactive feedback, we return only boolean correctness.
-        
+
         return response()->json([
             'correct' => $selectedAnswer->is_correct,
             // 'correct_answer_id' => $correctAnswer ? $correctAnswer->id : null // REMOVED FOR SECURITY
@@ -239,32 +261,49 @@ class QuizController extends Controller
         return response()->json(['message' => 'Este quiz já pertence a um usuário.'], 400);
     }
     /**
-     * 
+     *
+     * Get current ranking
+     */
+    /**
+     *
      * Get current ranking
      */
     public function getRanking()
     {
-        $ranking = QuizAttempt::select('quiz_attempts.*')
-            ->join('clients', function($join) {
-                $join->on('quiz_attempts.user_id', '=', 'clients.id')
-                     ->where('quiz_attempts.user_type', '=', \App\Models\Client::class);
-            })
-            ->orderByDesc('quiz_attempts.score')
-            ->orderByDesc('clients.referral_points')
-            ->orderBy('quiz_attempts.created_at')
-            ->with('user')
-            ->take(10)
-            ->get()
-            ->map(function ($attempt) {
-                return [
-                    'name' => $attempt->user ? $attempt->user->name : 'Anônimo',
-                    'score' => $attempt->score,
-                    'referral_points' => $attempt->user ? $attempt->user->referral_points : 0,
-                    'date' => $attempt->created_at->format('d/m/Y H:i'),
-                    'is_current_user' => auth()->guard('client')->check() && auth()->guard('client')->id() === $attempt->user_id
-                ];
-            });
+        // Cache ranking for 30 seconds to reduce DB load during high traffic
+        $ranking = \Illuminate\Support\Facades\Cache::remember('quiz_ranking', 30, function () {
+            return QuizAttempt::select('quiz_attempts.*')
+                ->join('clients', function($join) {
+                    $join->on('quiz_attempts.user_id', '=', 'clients.id')
+                         ->where('quiz_attempts.user_type', '=', \App\Models\Client::class);
+                })
+                ->orderByDesc('quiz_attempts.score')
+                ->orderByDesc('clients.referral_points')
+                ->orderBy('quiz_attempts.created_at')
+                ->with('user')
+                ->take(10)
+                ->get()
+                ->map(function ($attempt) {
+                    return [
+                        'name' => $attempt->user ? $attempt->user->name : 'Anônimo',
+                        'score' => $attempt->score,
+                        'referral_points' => $attempt->user ? $attempt->user->referral_points : 0,
+                        'date' => $attempt->created_at->format('d/m/Y H:i'),
+                        // Note: is_current_user cannot be cached globally as it depends on the viewer
+                        // We will handle this after retrieving from cache
+                        'user_id' => $attempt->user_id
+                    ];
+                });
+        });
 
-        return response()->json($ranking);
+        // Add user-specific data (is_current_user)
+        $currentUserId = auth()->guard('client')->id();
+        $rankingWithUserData = $ranking->map(function ($item) use ($currentUserId) {
+            $item['is_current_user'] = $currentUserId && $item['user_id'] === $currentUserId;
+            unset($item['user_id']); // Remove internal ID if not needed
+            return $item;
+        });
+
+        return response()->json($rankingWithUserData);
     }
 }
