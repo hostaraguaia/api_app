@@ -44,6 +44,10 @@ RUN apt-get install -y \
 RUN pecl install imagick \
     && docker-php-ext-enable imagick
 
+# Install Node.js and NPM
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

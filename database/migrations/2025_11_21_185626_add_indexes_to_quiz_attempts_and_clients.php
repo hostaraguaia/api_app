@@ -11,17 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('quiz_attempts', function (Blueprint $table) {
-            // Index for ranking queries (ordering by score and date)
-            $table->index(['score', 'created_at']);
-            // Index for user lookups if not already present (polymorphic)
-            $table->index(['user_id', 'user_type']);
-        });
+        // Check and create index for score/created_at if it doesn't exist
+        if (!Schema::hasIndex('quiz_attempts', 'quiz_attempts_score_created_at_index')) {
+            Schema::table('quiz_attempts', function (Blueprint $table) {
+                $table->index(['score', 'created_at']);
+            });
+        }
 
-        Schema::table('clients', function (Blueprint $table) {
-            // Index for ranking queries (ordering by referral points)
-            $table->index('referral_points');
-        });
+        // Check and create index for user_id/user_type if it doesn't exist
+        if (!Schema::hasIndex('quiz_attempts', 'quiz_attempts_user_id_user_type_index')) {
+            Schema::table('quiz_attempts', function (Blueprint $table) {
+                $table->index(['user_id', 'user_type']);
+            });
+        }
+
+        // Check and create index for referral_points if it doesn't exist
+        if (!Schema::hasIndex('clients', 'clients_referral_points_index')) {
+            Schema::table('clients', function (Blueprint $table) {
+                $table->index('referral_points');
+            });
+        }
     }
 
     /**
