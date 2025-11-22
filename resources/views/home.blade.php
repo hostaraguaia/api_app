@@ -6,9 +6,9 @@
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-body text-center p-5">
-                    <h1 class="display-4 mb-4">Bem-vindo ao Quiz</h1>
+                    <h1 class="display-4 mb-4">Bem-vindo ao Quiz Beatify!</h1>
                     <p class="lead mb-5">Teste seus conhecimentos agora mesmo! Não é necessário cadastro para começar.</p>
-                    
+
                     <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
                         <a href="{{ route('quiz.start') }}" class="btn btn-primary btn-lg px-4 gap-3">
                             <i class="bi bi-play-circle me-2"></i> Começar Quiz
@@ -28,7 +28,7 @@
                 <h2 class="text-center mb-5 fw-bold text-uppercase" style="letter-spacing: 2px;">
                     <i class="bi bi-trophy-fill text-warning me-2"></i> Ranking Top 3
                 </h2>
-                
+
                 <div class="row justify-content-center align-items-end text-center g-3 g-md-4" id="ranking-items">
                     <!-- Items will be injected via JS -->
                 </div>
@@ -45,7 +45,7 @@
             .then(data => {
                 const container = document.getElementById('ranking-container');
                 const itemsContainer = document.getElementById('ranking-items');
-                
+
                 if (data.length === 0) {
                     container.style.display = 'none';
                     return;
@@ -57,7 +57,7 @@
                 // Helper to create card HTML
                 const createCard = (item, rank) => {
                     let colClass, orderClass, badgeColor, iconColor, sizeClass, translateY;
-                    
+
                     if (rank === 1) {
                         colClass = 'col-12 col-md-4 mb-4 mb-md-0';
                         orderClass = 'order-1 order-md-2';
@@ -91,7 +91,7 @@
                             <div class="card border-0 shadow${rank === 1 ? '' : '-sm'} mb-3 transform-hover" style="${translateY}">
                                 <div class="card-body ${rank === 1 ? 'bg-white border border-warning border-bottom-0' : 'bg-light'} rounded-top ${sizeClass} position-relative">
                                     <div class="position-absolute top-0 start-50 translate-middle">
-                                        <span class="badge rounded-pill ${badgeColor} border border-4 border-white shadow-sm" 
+                                        <span class="badge rounded-pill ${badgeColor} border border-4 border-white shadow-sm"
                                               style="width: ${rank === 1 ? '50' : '40'}px; height: ${rank === 1 ? '50' : '40'}px; display: flex; align-items: center; justify-content: center; font-size: ${rank === 1 ? '1.5' : '1.2'}rem; ${badgeStyle}">
                                             ${rank}
                                         </span>
@@ -109,7 +109,7 @@
                 // We need to re-order data to match visual layout: 2nd, 1st, 3rd
                 // But HTML order is controlled by flex order classes, so we can just append in rank order (1, 2, 3)
                 // and the CSS classes (order-1, order-2, etc) will handle the visual position.
-                
+
                 if (data[0]) itemsContainer.innerHTML += createCard(data[0], 1);
                 if (data[1]) itemsContainer.innerHTML += createCard(data[1], 2);
                 if (data[2]) itemsContainer.innerHTML += createCard(data[2], 3);
