@@ -231,9 +231,11 @@ class QuizController extends Controller
         // Ideally, for a strict quiz, this endpoint should be removed and validation done only at the end.
         // However, for interactive feedback, we return only boolean correctness.
 
+        $correctAnswer = $question->answers->where('is_correct', true)->first();
+
         return response()->json([
             'correct' => $selectedAnswer->is_correct,
-            // 'correct_answer_id' => $correctAnswer ? $correctAnswer->id : null // REMOVED FOR SECURITY
+            'correct_answer_id' => $correctAnswer ? $correctAnswer->id : null
         ]);
     }
 
