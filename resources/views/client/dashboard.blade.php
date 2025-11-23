@@ -44,6 +44,18 @@
         </div>
 
         <div class="col-md-9">
+            @if($client->referred_by)
+                <div class="alert alert-success shadow-sm mb-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="alert-heading mb-1"><i class="bi bi-gift-fill"></i> Você foi indicado!</h4>
+                        <p class="mb-0">Participe do quiz agora e acumule pontos para você e quem te indicou.</p>
+                    </div>
+                    <a href="{{ route('quiz.start') }}" class="btn btn-success btn-lg fw-bold px-4">
+                        <i class="bi bi-play-circle-fill"></i> Fazer o quiz e participe
+                    </a>
+                </div>
+            @endif
+
             <!-- Referral Section -->
             <div class="card shadow-sm mb-4 border-primary">
                 <div class="card-header bg-primary text-white">
@@ -140,12 +152,12 @@
                                             </td>
                                             <td>
                                                 <div class="progress" style="height: 20px;">
-                                                    <div class="progress-bar 
+                                                    <div class="progress-bar
                                                         @if($attempt->score / $attempt->total_questions >= 0.7) bg-success
                                                         @elseif($attempt->score / $attempt->total_questions >= 0.5) bg-warning
                                                         @else bg-danger
-                                                        @endif" 
-                                                        role="progressbar" 
+                                                        @endif"
+                                                        role="progressbar"
                                                         style="width: {{ ($attempt->score / $attempt->total_questions) * 100 }}%">
                                                         {{ $attempt->score }} corretas
                                                     </div>
@@ -161,7 +173,7 @@
                                                 </strong>
                                             </td>
                                             <td>
-                                                <a href="{{ route('client.quiz.details', $attempt->id) }}" 
+                                                <a href="{{ route('client.quiz.details', $attempt->id) }}"
                                                    class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-eye"></i> Ver Detalhes
                                                 </a>
@@ -199,7 +211,7 @@
         var copyText = document.getElementById("referralLink");
         copyText.select();
         copyText.setSelectionRange(0, 99999); // For mobile devices
-        
+
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(copyText.value).then(function() {
                 alert("Link copiado para a área de transferência!");
@@ -245,7 +257,7 @@
                     const isCurrentUser = item.is_current_user;
                     const rowClass = isCurrentUser ? 'table-primary fw-bold' : '';
                     const badge = index < 3 ? `<i class="bi bi-trophy-fill text-${index === 0 ? 'warning' : (index === 1 ? 'secondary' : 'danger')}"></i>` : '';
-                    
+
                     const row = `
                         <tr class="${rowClass}">
                             <td class="ps-4 align-middle">${index + 1} ${badge}</td>
