@@ -32,7 +32,7 @@ class ClientController extends BaseAuthController
 
     protected function getAdditionalFields(Request $request): array
     {
-        return [
+        $additionalFields = [
             'cpf' => $request->cpf,
             'phone' => $request->phone,
             'zip_code' => $request->zip_code,
@@ -40,6 +40,17 @@ class ClientController extends BaseAuthController
             'state' => $request->state,
             'parish' => $request->parish,
             'address' => $request->address,
+            'referral_code' => \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(8)),
+            'referral_points' => 0,
         ];
+
+        if ($request->has('referral_code') && !empty($request->referral_code)) {
+            $referrer = Client::where('referral_code', $request->referral_code)->first();
+            if ($referrer) {
+                $additionalFields['referred_by'] = $referrer->id;
+            }
+        }
+
+        return $additionalFields;
     }
 }
