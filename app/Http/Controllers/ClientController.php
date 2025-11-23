@@ -21,7 +21,11 @@ class ClientController extends BaseAuthController
     {
         return [
             'cpf' => 'nullable|unique:clients',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|string|max:20',
+            'zip_code' => 'required|string|max:20',
+            'city' => 'required|string|max:255',
+            'state' => 'required|string|max:2',
+            'parish' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
         ];
     }
@@ -31,6 +35,10 @@ class ClientController extends BaseAuthController
         return [
             'cpf' => $request->cpf,
             'phone' => $request->phone,
+            'zip_code' => $request->zip_code,
+            'city' => $request->city,
+            'state' => $request->state,
+            'parish' => $request->parish,
             'address' => $request->address,
         ];
     }

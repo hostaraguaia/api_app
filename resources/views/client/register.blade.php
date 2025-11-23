@@ -39,7 +39,7 @@
                         <!-- Step 1: Dados Pessoais -->
                         <div class="step-content" id="step1">
                             <h4 class="mb-4 text-primary">Dados Pessoais</h4>
-                            
+
                             <div class="mb-3">
                                 <label for="name" class="form-label">Nome Completo</label>
                                 <div class="input-group">
@@ -66,7 +66,7 @@
                                     <label for="phone" class="form-label">Telefone/WhatsApp</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-whatsapp"></i></span>
-                                        <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" placeholder="(00) 00000-0000">
+                                        <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" required placeholder="(00) 00000-0000">
                                         @error('phone')
                                             <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                         @enderror
@@ -90,7 +90,7 @@
                                     <label for="zip_code" class="form-label">CEP</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-geo-alt"></i></span>
-                                        <input id="zip_code" type="text" class="form-control @error('zip_code') is-invalid @enderror" name="zip_code" value="{{ old('zip_code') }}" placeholder="00000-000">
+                                        <input id="zip_code" type="text" class="form-control @error('zip_code') is-invalid @enderror" name="zip_code" value="{{ old('zip_code') }}" required placeholder="00000-000">
                                         @error('zip_code')
                                             <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                         @enderror
@@ -98,14 +98,14 @@
                                 </div>
                                 <div class="col-md-8 mb-3">
                                     <label for="city" class="form-label">Cidade</label>
-                                    <input id="city" type="text" class="form-control @error('city') is-invalid @enderror" name="city" value="{{ old('city') }}" placeholder="Sua cidade">
+                                    <input id="city" type="text" class="form-control @error('city') is-invalid @enderror" name="city" value="{{ old('city') }}" required placeholder="Sua cidade">
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label for="state" class="form-label">Estado</label>
-                                    <select id="state" class="form-select @error('state') is-invalid @enderror" name="state">
+                                    <select id="state" class="form-select @error('state') is-invalid @enderror" name="state" required>
                                         <option value="">Selecione</option>
                                         <option value="AC">Acre</option>
                                         <option value="AL">Alagoas</option>
@@ -140,7 +140,7 @@
                                     <label for="parish" class="form-label">Sua Paróquia</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-house-heart"></i></span>
-                                        <input id="parish" type="text" class="form-control @error('parish') is-invalid @enderror" name="parish" value="{{ old('parish') }}" placeholder="Nome da sua paróquia">
+                                        <input id="parish" type="text" class="form-control @error('parish') is-invalid @enderror" name="parish" value="{{ old('parish') }}" required placeholder="Nome da sua paróquia">
                                     </div>
                                 </div>
                             </div>
@@ -287,7 +287,7 @@
             // Simple validation before proceeding
             let isValid = true;
             const currentStepEl = $('#step' + currentStep);
-            
+
             currentStepEl.find('input[required]').each(function() {
                 if (!$(this).val()) {
                     isValid = false;
