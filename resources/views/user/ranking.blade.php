@@ -59,9 +59,9 @@
                                     <tr>
                                         <th class="text-center" style="width: 80px;">Posição</th>
                                         <th>Nome</th>
-                                        <th class="text-center">Pontuação Geral</th>
+
                                         <th class="text-center">Quiz</th>
-                                        <th class="text-center">Pontuação Geral</th>
+
                                         <th class="text-center">Data</th>
                                     </tr>
                                 </thead>
@@ -90,23 +90,13 @@
                                                 <br>
                                                 <small class="text-muted">{{ $attempt->user->email }}</small>
                                             </td>
-                                            <td class="text-center">
-                                                <h5 class="mb-0">
-                                                    <span class="badge bg-primary" style="font-size: 1.1rem;">
-                                                        {{ $attempt->score + ($attempt->referral_points ?? 0) }}
-                                                    </span>
-                                                </h5>
-                                            </td>
+
                                             <td class="text-center">
                                                 <span class="badge bg-info">
                                                     {{ $attempt->score }}
                                                 </span>
                                             </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-success">
-                                                    {{ $attempt->referral_points ?? 0 }}
-                                                </span>
-                                            </td>
+
                                             <td class="text-center text-muted">
                                                 <small>{{ $attempt->created_at->format('d/m/Y H:i') }}</small>
                                             </td>
