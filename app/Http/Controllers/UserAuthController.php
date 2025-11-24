@@ -99,15 +99,23 @@ class UserAuthController extends Controller
     {
         $user = Auth::guard('web')->user();
 
-        $ranking = \App\Models\QuizAttempt::select('quiz_attempts.*', 'clients.referral_points')
-            ->join('clients', function($join) {
-                $join->on('quiz_attempts.user_id', '=', 'clients.id')
+        // Get all clients with their best quiz attempt (if any)
+        $ranking = \App\Models\Client::select(
+                'clients.id',
+                'clients.name',
+                'clients.email',
+                'clients.referral_points',
+                'clients.created_at as client_created_at',
+                \DB::raw('COALESCE(MAX(quiz_attempts.score), 0) as score'),
+                \DB::raw('MAX(quiz_attempts.created_at) as quiz_date')
+            )
+            ->leftJoin('quiz_attempts', function($join) {
+                $join->on('clients.id', '=', 'quiz_attempts.user_id')
                      ->where('quiz_attempts.user_type', '=', \App\Models\Client::class);
             })
-            ->orderByDesc('quiz_attempts.score')
-            ->orderByDesc('clients.referral_points')
-            ->orderBy('quiz_attempts.created_at')
-            ->with('user')
+            ->groupBy('clients.id', 'clients.name', 'clients.email', 'clients.referral_points', 'clients.created_at')
+            ->orderByRaw('COALESCE(MAX(quiz_attempts.score), 0) + clients.referral_points DESC')
+            ->orderBy('clients.created_at')
             ->get();
 
         return view('user.ranking', compact('user', 'ranking'));
