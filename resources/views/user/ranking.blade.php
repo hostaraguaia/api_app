@@ -60,7 +60,7 @@
                                         <th class="text-center" style="width: 80px;">Posição</th>
                                         <th>Nome</th>
 
-                                        <th class="text-center">Quiz</th>
+                                        <th class="text-center">Pontuação Geral</th>
 
                                         <th class="text-center">Data</th>
                                     </tr>
