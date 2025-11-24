@@ -66,7 +66,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($ranking as $index => $client)
+                                    @foreach($ranking as $index => $attempt)
                                         <tr>
                                             <td class="text-center">
                                                 @if($index === 0)
@@ -86,25 +86,19 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <strong>{{ $client->name }}</strong>
+                                                <strong>{{ $attempt->user->name }}</strong>
                                                 <br>
-                                                <small class="text-muted">{{ $client->email }}</small>
+                                                <small class="text-muted">{{ $attempt->user->email }}</small>
                                             </td>
 
                                             <td class="text-center">
                                                 <span class="badge bg-info">
-                                                    {{ $client->score + ($client->referral_points ?? 0) }}
+                                                    {{ $attempt->score + ($attempt->referral_points ?? 0) }}
                                                 </span>
                                             </td>
 
                                             <td class="text-center text-muted">
-                                                <small>
-                                                    @if($client->quiz_date)
-                                                        {{ \Carbon\Carbon::parse($client->quiz_date)->format('d/m/Y H:i') }}
-                                                    @else
-                                                        <span class="text-muted">Não fez o quiz</span>
-                                                    @endif
-                                                </small>
+                                                <small>{{ $attempt->created_at->format('d/m/Y H:i') }}</small>
                                             </td>
                                         </tr>
                                     @endforeach
