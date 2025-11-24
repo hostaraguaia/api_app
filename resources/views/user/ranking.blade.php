@@ -92,7 +92,7 @@
                                             </td>
                                             <td class="text-center">
                                                 <span class="badge bg-primary">
-                                                    {{ $attempt->score }}/{{ $attempt->total_questions }}
+                                                    {{ $attempt->score }}
                                                 </span>
                                             </td>
                                             <td class="text-center">
