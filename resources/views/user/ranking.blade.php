@@ -93,7 +93,7 @@
                                             <td class="text-center">
                                                 <h5 class="mb-0">
                                                     <span class="badge bg-primary" style="font-size: 1.1rem;">
-                                                        {{ $attempt->score + ($attempt->user->referral_points ?? 0) }}
+                                                        {{ $attempt->score + ($attempt->referral_points ?? 0) }}
                                                     </span>
                                                 </h5>
                                             </td>
@@ -104,7 +104,7 @@
                                             </td>
                                             <td class="text-center">
                                                 <span class="badge bg-success">
-                                                    {{ $attempt->user->referral_points ?? 0 }}
+                                                    {{ $attempt->referral_points ?? 0 }}
                                                 </span>
                                             </td>
                                             <td class="text-center text-muted">

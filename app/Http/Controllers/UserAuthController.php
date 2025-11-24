@@ -99,7 +99,7 @@ class UserAuthController extends Controller
     {
         $user = Auth::guard('web')->user();
 
-        $ranking = \App\Models\QuizAttempt::select('quiz_attempts.*')
+        $ranking = \App\Models\QuizAttempt::select('quiz_attempts.*', 'clients.referral_points')
             ->join('clients', function($join) {
                 $join->on('quiz_attempts.user_id', '=', 'clients.id')
                      ->where('quiz_attempts.user_type', '=', \App\Models\Client::class);
