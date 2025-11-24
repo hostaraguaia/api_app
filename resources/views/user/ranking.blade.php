@@ -59,9 +59,9 @@
                                     <tr>
                                         <th class="text-center" style="width: 80px;">Posição</th>
                                         <th>Nome</th>
-                                        <th class="text-center">Pontuação Quiz</th>
-                                        <th class="text-center">Pontos Indicação</th>
-                                        <th class="text-center">Total</th>
+                                        <th class="text-center">Pontuação Geral</th>
+                                        <th class="text-center">Quiz</th>
+                                        <th class="text-center">Indicações</th>
                                         <th class="text-center">Data</th>
                                     </tr>
                                 </thead>
@@ -91,7 +91,14 @@
                                                 <small class="text-muted">{{ $attempt->user->email }}</small>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-primary">
+                                                <h5 class="mb-0">
+                                                    <span class="badge bg-primary" style="font-size: 1.1rem;">
+                                                        {{ $attempt->score + ($attempt->user->referral_points ?? 0) }}
+                                                    </span>
+                                                </h5>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-info">
                                                     {{ $attempt->score }}
                                                 </span>
                                             </td>
@@ -99,11 +106,6 @@
                                                 <span class="badge bg-success">
                                                     {{ $attempt->user->referral_points ?? 0 }}
                                                 </span>
-                                            </td>
-                                            <td class="text-center">
-                                                <strong class="text-primary">
-                                                    {{ $attempt->score + ($attempt->user->referral_points ?? 0) }}
-                                                </strong>
                                             </td>
                                             <td class="text-center text-muted">
                                                 <small>{{ $attempt->created_at->format('d/m/Y H:i') }}</small>
