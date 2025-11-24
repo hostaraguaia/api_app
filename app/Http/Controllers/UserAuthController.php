@@ -91,4 +91,68 @@ class UserAuthController extends Controller
         $user = Auth::guard('web')->user();
         return view('user.dashboard', compact('user'));
     }
+
+    /**
+     * Show the complete ranking of participants
+     */
+    public function showRanking()
+    {
+        $user = Auth::guard('web')->user();
+
+        $ranking = \App\Models\QuizAttempt::select('quiz_attempts.*')
+            ->join('clients', function($join) {
+                $join->on('quiz_attempts.user_id', '=', 'clients.id')
+                     ->where('quiz_attempts.user_type', '=', \App\Models\Client::class);
+            })
+            ->orderByDesc('quiz_attempts.score')
+            ->orderByDesc('clients.referral_points')
+            ->orderBy('quiz_attempts.created_at')
+            ->with('user')
+            ->get();
+
+        return view('user.ranking', compact('user', 'ranking'));
+    }
+
+    /**
+     * Export all participant emails as CSV
+     */
+    public function exportEmails()
+    {
+        $clients = \App\Models\Client::select('name', 'email', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $filename = 'participantes_emails_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() use ($clients) {
+            $file = fopen('php://output', 'w');
+
+            // Add BOM for UTF-8
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            // Add header row
+            fputcsv($file, ['Nome', 'Email', 'Data de Cadastro'], ';');
+
+            // Add data rows
+            foreach ($clients as $client) {
+                fputcsv($file, [
+                    $client->name,
+                    $client->email,
+                    $client->created_at->format('d/m/Y H:i:s')
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

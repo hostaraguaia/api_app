@@ -14,7 +14,7 @@ Route::get('/', function () {
         ->with('user')
         ->take(3)
         ->get();
-        
+
     return view('home', compact('ranking'));
 })->name('home');
 
@@ -47,6 +47,10 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::middleware('auth:web')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\UserAuthController::class, 'dashboard'])->name('dashboard');
         Route::post('/logout', [App\Http\Controllers\UserAuthController::class, 'logout'])->name('logout');
+
+        // Ranking and Export Routes
+        Route::get('/ranking', [App\Http\Controllers\UserAuthController::class, 'showRanking'])->name('ranking');
+        Route::get('/export-emails', [App\Http\Controllers\UserAuthController::class, 'exportEmails'])->name('export-emails');
 
         // Question Management Routes
         Route::resource('questions', App\Http\Controllers\QuestionController::class);
