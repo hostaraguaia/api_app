@@ -66,7 +66,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($ranking as $index => $attempt)
+                                    @foreach($ranking as $index => $client)
                                         <tr>
                                             <td class="text-center">
                                                 @if($index === 0)
@@ -86,19 +86,25 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <strong>{{ $attempt->user->name }}</strong>
+                                                <strong>{{ $client->name }}</strong>
                                                 <br>
-                                                <small class="text-muted">{{ $attempt->user->email }}</small>
+                                                <small class="text-muted">{{ $client->email }}</small>
                                             </td>
 
                                             <td class="text-center">
                                                 <span class="badge bg-info">
-                                                    {{ $attempt->score }}
+                                                    {{ $client->score + ($client->referral_points ?? 0) }}
                                                 </span>
                                             </td>
 
                                             <td class="text-center text-muted">
-                                                <small>{{ $attempt->created_at->format('d/m/Y H:i') }}</small>
+                                                <small>
+                                                    @if($client->quiz_date)
+                                                        {{ \Carbon\Carbon::parse($client->quiz_date)->format('d/m/Y H:i') }}
+                                                    @else
+                                                        <span class="text-muted">Não fez o quiz</span>
+                                                    @endif
+                                                </small>
                                             </td>
                                         </tr>
                                     @endforeach
